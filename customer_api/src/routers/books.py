@@ -35,6 +35,12 @@ async def read_book(book_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Book not found")
     return db_book
 
+# Filter books endpoint
+@router.get("")
+async def filter_books(publisher: Optional[str] = Query(None), category: Optional[str] = Query(None), db: Session = Depends(get_db)):
+    books = get_books(db, publisher=publisher, category=category)
+    return books
+
 # Borrow single book endpoint
 @router.post("/borrow/{book_id}")
 async def borrow_single_book(book_id: str, days: int, user_email: str, db: Session = Depends(get_db)):
