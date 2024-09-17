@@ -1,0 +1,36 @@
+version: '3'
+services:
+  frontend_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  backend_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
