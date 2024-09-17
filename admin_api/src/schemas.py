@@ -5,3 +5,9 @@ class BookCreate(BaseModel):
     author: str
     publisher: str
     category: str
+
+
+class SuccessResponse(BaseModel):
+    message: str
+    data: dict
+    status_code: int

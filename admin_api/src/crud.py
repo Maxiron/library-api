@@ -1,26 +1,62 @@
 import requests
+import uuid
+from datetime import datetime
 
-from src.schemas import BookCreate
+from sqlalchemy.orm import Session
 
-CUSTOMER_API_BASE_URL = "http://customer-api:8000/api/v1/"
+from src.schemas import BookCreate, SuccessResponse
+from src.models import Book
+
+CUSTOMER_API_BASE_URL = " http://127.0.0.1:8000/api/"
 
 def get_customers():
-    response = requests.get(CUSTOMER_API_BASE_URL)
+    response = requests.get(CUSTOMER_API_BASE_URL + "users/")
+    print(response.json())
+    return response.json()
+
+def get_customer(customer_id):
+    response = requests.get(f"{CUSTOMER_API_BASE_URL}/users/{customer_id}")
     return response.json()
 
 def get_borrowed_books_for_customer(customer_id):
     response = requests.get(f"{CUSTOMER_API_BASE_URL}/borrowed-books/{customer_id}")
     return response.json()
 
-def add_book_to_catalog(book: BookCreate):
-    response = requests.post(f"{CUSTOMER_API_BASE_URL}/books", json=book.dict())
-    return response.json()
 
-def remove_book_from_catalog(book_id: int):
-    response = requests.delete(f"{CUSTOMER_API_BASE_URL}/books/{book_id}")
-    return response.json()
 
-def get_unavailable_books():
-    response = requests.get(f"{CUSTOMER_API_BASE_URL}/borrowed-books")
-    return response.json()
+def create_book(db: Session, book: BookCreate):
+    db_book = Book(
+        id=str(uuid.uuid4()),
+        title=book.title,
+        author=book.author,
+        publisher=book.publisher,
+        category=book.category,
+        is_available=True
+    )
+    db.add(db_book)
+    db.commit()
+    db.refresh(db_book)
+    return db_book
 
+def delete_book(db: Session, book_id: str):
+    db_book = db.query(Book).filter(Book.id == book_id).first()
+    if not db_book:
+        return False
+    db.delete(db_book)
+    db.commit()
+    return True
+
+def mark_book_as_unavailable(db: Session, book_id: str):
+    db.query(Book).filter(Book.id == book_id).update({"is_available": False}, synchronize_session=False)
+    db.commit()
+    return True
+
+def get_unavailable_books(db: Session):
+    query = db.query(Book).filter(Book.is_available == False).all()
+    return SuccessResponse(
+        message="Unavailable books retrieved successfully" if query else "No unavailable books found",
+        data={
+            "books": query if query else [],
+        },
+        status_code=200 if query else 404
+    )

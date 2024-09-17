@@ -1,8 +1,15 @@
 from sqlalchemy.orm import Session
 from src.models import User, Book, BorrowedBook
 from src.schemas import UserCreate, ResponseSchema
+from src.config import redis_settings
 from datetime import datetime, timedelta
 import uuid
+import json
+from redis import Redis
+
+
+redis_client = Redis(host=redis_settings.redis_host, port=redis_settings.redis_port, db=redis_settings.redis_db)
+
 
 def get_user(db: Session, email: str):
     user = db.query(User).filter(User.email == email).first()
@@ -14,9 +21,12 @@ def get_user(db: Session, email: str):
 
 def get_users(db: Session):
     users = db.query(User).all()
+    serialized_users = [{"user_id": user.id, "email": user.email} for user in users]
     return ResponseSchema(
         message="Users found" if users else "Users not found",
-        data=[{"user_id": user.id, "email": user.email} for user in users],
+        data={
+            "users": serialized_users
+        },
         status_code=200 if users else 404
     )
 
@@ -33,25 +43,51 @@ def create_user(db: Session, user: UserCreate):
     )
 
 def get_books(db: Session, publisher: str = None, category: str = None, is_available: bool = True):
-    query = db.query(Book)
-    if publisher:
-        query = query.filter(Book.publisher == publisher, Book.is_available == is_available)
-    if category:
-        query = query.filter(Book.category == category, Book.is_available == is_available)
-    if publisher and category:
-        query = query.filter(Book.publisher == publisher, Book.category == category, Book.is_available == is_available)
+    try:
+        query = db.query(Book)
+        if publisher:
+            query = query.filter(Book.publisher == publisher, Book.is_available == is_available)
+        if category:
+            query = query.filter(Book.category == category, Book.is_available == is_available)
+        if publisher and category:
+            query = query.filter(Book.publisher == publisher, Book.category == category, Book.is_available == is_available)
 
-    else:
-        query = query.all(Book.is_available == is_available)
+        else:
+            query = query.filter(Book.is_available == is_available)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return ResponseSchema(
+            message="An error occurred",
+            data=[],
+            status_code=500
+        )
+    finally:
+        # close the session
+        db.close()
 
     return ResponseSchema(
-        message="Books found" if query else "Books not found",
-        data=[{"id": book.id, "title": book.title, "author": book.author, "publisher": book.publisher, "category": book.category, "is_available": book.is_available} for book in query],
-        status_code=200 if query else 404
+
+        message="Books found" if query.all() else "Books not found",
+        data={
+            "books": [{"id": book.id, "title": book.title, "author": book.author, "publisher": book.publisher, "category": book.category, "is_available": book.is_available} for book in query]
+            },
+        status_code=200 if query.all() else 404
     )
 
 def get_book(db: Session, book_id: str):
-    book = db.query(Book).filter(Book.id == book_id).first()
+    try:
+        book = db.query(Book).filter(Book.id == book_id).first()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return ResponseSchema(
+            message="An error occurred",
+            data={},
+            status_code=500
+        )
+    finally:
+        # close the session
+        db.close()
+
     return ResponseSchema(
         message="Book found" if book else "Book not found",
         data={"id": book.id, "title": book.title, "author": book.author, "publisher": book.publisher, "category": book.category, "is_available": book.is_available} if book else {},
@@ -98,10 +134,18 @@ def borrow_book(db: Session, book_id: str, user_email: str, days: int):
         book_id=book_id,
         return_date=datetime.utcnow() + timedelta(days=days)
     )
+
+    # Mark the book as unavailable
+    db.query(Book).filter(Book.id == book_id).update({"is_available": False}, synchronize_session=False)
+
     db.add(db_borrowed)
     db.commit()
     db.refresh(db_borrowed)
-    # Notify Admin API about the borrowed book (e.g., via Redis)
+    # Notify Admin API about the borrowed book 
+    message = {"action": "borrow", "book": {"id": db_borrowed.book_id, "user_email": db_borrowed.user_email}}
+    redis_client.publish('book_updates', json.dumps(message))
+
+
     return ResponseSchema(
         message="Book borrowed successfully",
         data={"id": db_borrowed.id, "user_email": db_borrowed.user_email, "book_id": db_borrowed.book_id, "borrow_date": db_borrowed.borrow_date, "return_date": db_borrowed.return_date},
@@ -126,6 +170,3 @@ def get_borrowed_books_for_customer(db: Session, customer_id: int):
         status_code=200 if borrowed_books else 404
     )
 
-def sync_books(db: Session, data):
-    # Deserialize data and update books
-    pass  # Implementation depends on data format
