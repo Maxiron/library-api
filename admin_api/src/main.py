@@ -56,7 +56,7 @@ async def get_db():
         db.close()
 
 
-@app.get("/")
+@app.get("/api/")
 async def home():
     response ={
         "status": True,
@@ -65,7 +65,7 @@ async def home():
     # Return a JSON response
     return response
 
-@app.post("/books")
+@app.post("/api/books")
 def add_book(book: BookCreate):
     response = create_book(book)
     # Publish to Redis
@@ -73,7 +73,7 @@ def add_book(book: BookCreate):
     redis_client.publish('book_updates', json.dumps(message))
     return SuccessResponse(message="Book added successfully", data=response, status_code=200)
 
-@app.delete("/books/{book_id}")
+@app.delete("/api/books/{book_id}")
 def remove_book(book_id: int):
     response = delete_book(book_id)
     # Publish to Redis
@@ -81,18 +81,18 @@ def remove_book(book_id: int):
     redis_client.publish('book_updates', json.dumps(message))
     return response
 
-@app.get("/users")
+@app.get("/api/users")
 def list_users():
     return get_customers()
 
-@app.get("/users/{user_id}")
+@app.get("/api/users/{user_id}")
 def get_user(user_id: int):
     return get_customer(user_id)
 
-@app.get("/borrowings/{customer_id}")
+@app.get("/api/borrowings/{customer_id}")
 def list_borrowings(customer_id: int):
     return get_borrowed_books_for_customer(customer_id)
 
-@app.get("/books/unavailable")
+@app.get("/api/books/unavailable")
 def unavailable_books():
     return get_unavailable_books(db=SessionLocal())
