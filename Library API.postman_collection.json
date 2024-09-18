@@ -1,0 +1,843 @@
+{
+	"info": {
+		"_postman_id": "3d58610e-63ca-4a90-8f85-5c07e4f71575",
+		"name": "Library API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31377695"
+	},
+	"item": [
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Add Book",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"New School Chemistry\",\r\n    \"author\": \"Yaw Ababio\",\r\n    \"publisher\": \"Macmillian\",\r\n    \"category\": \"Science\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ADMIN_URL}}/api/books",
+							"host": [
+								"{{ADMIN_URL}}"
+							],
+							"path": [
+								"api",
+								"books"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Add Book",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"title\": \"New School Chemistry\",\r\n    \"author\": \"Yaw Ababio\",\r\n    \"publisher\": \"Macmillian\",\r\n    \"category\": \"Science\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ADMIN_URL}}/api/books",
+									"host": [
+										"{{ADMIN_URL}}"
+									],
+									"path": [
+										"api",
+										"books"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 07:37:28 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "236"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Book added successfully\",\n    \"data\": {\n        \"book\": {\n            \"id\": \"28a03576-7504-4477-a062-999aba0ac2f5\",\n            \"title\": \"New School Chemistry\",\n            \"author\": \"Yaw Ababio\",\n            \"publisher\": \"Macmillian\",\n            \"category\": \"Science\",\n            \"is_available\": true\n        }\n    },\n    \"status_code\": 200\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove Book",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{ADMIN_URL}}/api/books/:book_id",
+							"host": [
+								"{{ADMIN_URL}}"
+							],
+							"path": [
+								"api",
+								"books",
+								":book_id"
+							],
+							"variable": [
+								{
+									"key": "book_id",
+									"value": "28a03576-7504-4477-a062-999aba0ac2f5",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Remove Book",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{ADMIN_URL}}/api/books/:book_id",
+									"host": [
+										"{{ADMIN_URL}}"
+									],
+									"path": [
+										"api",
+										"books",
+										":book_id"
+									],
+									"variable": [
+										{
+											"key": "book_id",
+											"value": "28a03576-7504-4477-a062-999aba0ac2f5",
+											"type": "string"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 07:37:58 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "67"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Book deleted successfully\",\n    \"data\": {},\n    \"status_code\": 200\n}"
+						}
+					]
+				},
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ADMIN_URL}}/api/users",
+							"host": [
+								"{{ADMIN_URL}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List Users",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{ADMIN_URL}}/api/users",
+									"host": [
+										"{{ADMIN_URL}}"
+									],
+									"path": [
+										"api",
+										"users"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 07:47:21 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "235"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Users found\",\n    \"data\": {\n        \"users\": [\n            {\n                \"user_id\": 1,\n                \"email\": \"maxiron@gmail.com\",\n                \"first_name\": \"Aaron\",\n                \"last_name\": \"Nwokoro\"\n            },\n            {\n                \"user_id\": 2,\n                \"email\": \"maxiron2@gmail.com\",\n                \"first_name\": \"Aaron2\",\n                \"last_name\": \"Nwokoro2\"\n            }\n        ]\n    },\n    \"status_code\": 200\n}"
+						}
+					]
+				},
+				{
+					"name": "Get User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ADMIN_URL}}/api/users/:user_id",
+							"host": [
+								"{{ADMIN_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get User",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{ADMIN_URL}}/api/users/:user_id",
+									"host": [
+										"{{ADMIN_URL}}"
+									],
+									"path": [
+										"api",
+										"users",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 07:56:31 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "77"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 1,\n    \"lastname\": \"Nwokoro\",\n    \"firstname\": \"Aaron\",\n    \"email\": \"maxiron@gmail.com\"\n}"
+						}
+					]
+				},
+				{
+					"name": "List Borrowed Books By User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ADMIN_URL}}/api/borrowings/:customer_id",
+							"host": [
+								"{{ADMIN_URL}}"
+							],
+							"path": [
+								"api",
+								"borrowings",
+								":customer_id"
+							],
+							"variable": [
+								{
+									"key": "customer_id",
+									"value": "1",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List Borrowed Books By User",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{ADMIN_URL}}/api/borrowings/:customer_id",
+									"host": [
+										"{{ADMIN_URL}}"
+									],
+									"path": [
+										"api",
+										"borrowings",
+										":customer_id"
+									],
+									"variable": [
+										{
+											"key": "customer_id",
+											"value": "1",
+											"type": "string"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 09:51:31 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "339"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Borrowed books found\",\n    \"data\": {\n        \"books\": [\n            {\n                \"book_id\": \"5ceaa44d-af3a-48cf-a698-972beb2bd9b0\",\n                \"book_title\": \"New School Physics\",\n                \"book_author\": \"Yaw Ababio\",\n                \"book_publisher\": \"Evans\",\n                \"book_category\": \"Science\",\n                \"user_email\": \"maxiron@gmail.com\",\n                \"borrow_date\": \"2024-09-18T08:40:07\",\n                \"return_date\": \"2024-09-28T08:40:07\"\n            }\n        ]\n    },\n    \"status_code\": 200\n}"
+						}
+					]
+				},
+				{
+					"name": "List Unavailable Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ADMIN_URL}}/api/books/unavailable",
+							"host": [
+								"{{ADMIN_URL}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"unavailable"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List Unavailable Books",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{ADMIN_URL}}/api/books/unavailable",
+									"host": [
+										"{{ADMIN_URL}}"
+									],
+									"path": [
+										"api",
+										"books",
+										"unavailable"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 09:26:29 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "214"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Unavailable books retrieved successfully\",\n    \"data\": {\n        \"books\": [\n            {\n                \"book_id\": \"5ceaa44d-af3a-48cf-a698-972beb2bd9b0\",\n                \"title\": \"New School Physics\",\n                \"author\": \"Yaw Ababio\",\n                \"category\": \"Science\"\n            }\n        ]\n    },\n    \"status_code\": 200\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Frontend",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"maxiron@gmail.com\",\r\n    \"first_name\": \"Aaron\",\r\n    \"last_name\": \"Nwokoro\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FRONTEND_URL}}/api/users/",
+							"host": [
+								"{{FRONTEND_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Create User",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"maxiron@gmail.com\",\r\n    \"first_name\": \"Aaron\",\r\n    \"last_name\": \"Nwokoro\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FRONTEND_URL}}/api/users/",
+									"host": [
+										"{{FRONTEND_URL}}"
+									],
+									"path": [
+										"api",
+										"users",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 07:45:10 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "106"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"User created successfully\",\n    \"data\": {\n        \"user_id\": 1,\n        \"email\": \"maxiron@gmail.com\"\n    },\n    \"status_code\": 200\n}"
+						}
+					]
+				},
+				{
+					"name": "List Available Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FRONTEND_URL}}/api/books/",
+							"host": [
+								"{{FRONTEND_URL}}"
+							],
+							"path": [
+								"api",
+								"books",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List Available Books",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{FRONTEND_URL}}/api/books/",
+									"host": [
+										"{{FRONTEND_URL}}"
+									],
+									"path": [
+										"api",
+										"books",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 08:11:54 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "385"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Books found\",\n    \"data\": {\n        \"books\": [\n            {\n                \"id\": \"5ceaa44d-af3a-48cf-a698-972beb2bd9b0\",\n                \"title\": \"New School Physics\",\n                \"author\": \"Yaw Ababio\",\n                \"publisher\": \"Evans\",\n                \"category\": \"Science\",\n                \"is_available\": true\n            },\n            {\n                \"id\": \"8270cb80-9923-4e8e-aa89-c2386942e316\",\n                \"title\": \"New School Chemistry\",\n                \"author\": \"Yaw Ababio\",\n                \"publisher\": \"Macmillian\",\n                \"category\": \"Science\",\n                \"is_available\": true\n            }\n        ]\n    },\n    \"status_code\": 200\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Book",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FRONTEND_URL}}/api/books/:book_id/",
+							"host": [
+								"{{FRONTEND_URL}}"
+							],
+							"path": [
+								"api",
+								"books",
+								":book_id",
+								""
+							],
+							"variable": [
+								{
+									"key": "book_id",
+									"value": "5ceaa44d-af3a-48cf-a698-972beb2bd9b0",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Book",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{FRONTEND_URL}}/api/books/:book_id/",
+									"host": [
+										"{{FRONTEND_URL}}"
+									],
+									"path": [
+										"api",
+										"books",
+										":book_id",
+										""
+									],
+									"variable": [
+										{
+											"key": "book_id",
+											"value": "5ceaa44d-af3a-48cf-a698-972beb2bd9b0",
+											"type": "string"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 08:12:39 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "207"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Book found\",\n    \"data\": {\n        \"id\": \"5ceaa44d-af3a-48cf-a698-972beb2bd9b0\",\n        \"title\": \"New School Physics\",\n        \"author\": \"Yaw Ababio\",\n        \"publisher\": \"Evans\",\n        \"category\": \"Science\",\n        \"is_available\": true\n    },\n    \"status_code\": 200\n}"
+						}
+					]
+				},
+				{
+					"name": "Filter Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FRONTEND_URL}}/api/books?publisher=Macmillian&category=Science",
+							"host": [
+								"{{FRONTEND_URL}}"
+							],
+							"path": [
+								"api",
+								"books"
+							],
+							"query": [
+								{
+									"key": "publisher",
+									"value": "Macmillian"
+								},
+								{
+									"key": "category",
+									"value": "Science"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Filter Books",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{FRONTEND_URL}}/api/books?publisher=Macmillian&category=Science",
+									"host": [
+										"{{FRONTEND_URL}}"
+									],
+									"path": [
+										"api",
+										"books"
+									],
+									"query": [
+										{
+											"key": "publisher",
+											"value": "Macmillian"
+										},
+										{
+											"key": "category",
+											"value": "Science"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 08:13:38 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "227"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Books found\",\n    \"data\": {\n        \"books\": [\n            {\n                \"id\": \"8270cb80-9923-4e8e-aa89-c2386942e316\",\n                \"title\": \"New School Chemistry\",\n                \"author\": \"Yaw Ababio\",\n                \"publisher\": \"Macmillian\",\n                \"category\": \"Science\",\n                \"is_available\": true\n            }\n        ]\n    },\n    \"status_code\": 200\n}"
+						}
+					]
+				},
+				{
+					"name": "Borrow Book",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_email\": \"maxiron@gmail.com\",\r\n    \"days\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FRONTEND_URL}}/api/books/borrow/:book_id",
+							"host": [
+								"{{FRONTEND_URL}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"borrow",
+								":book_id"
+							],
+							"variable": [
+								{
+									"key": "book_id",
+									"value": "5ceaa44d-af3a-48cf-a698-972beb2bd9b0",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Borrow Book",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user_email\": \"maxiron@gmail.com\",\r\n    \"days\": 10\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FRONTEND_URL}}/api/books/borrow/:book_id",
+									"host": [
+										"{{FRONTEND_URL}}"
+									],
+									"path": [
+										"api",
+										"books",
+										"borrow",
+										":book_id"
+									],
+									"variable": [
+										{
+											"key": "book_id",
+											"value": "5ceaa44d-af3a-48cf-a698-972beb2bd9b0",
+											"type": "string"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Wed, 18 Sep 2024 09:17:12 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "68"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Book borrowed successfully\",\n    \"data\": {},\n    \"status_code\": 200\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "ADMIN_URL",
+			"value": "http://127.0.0.1:8001 ",
+			"type": "string"
+		},
+		{
+			"key": "FRONTEND_URL",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		}
+	]
+}
