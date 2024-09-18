@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 from src.config import redis_settings
 from src.schemas import BookCreate, SuccessResponse
 from src.database import SessionLocal
@@ -8,11 +9,60 @@ from src.crud import (
     get_customers, get_borrowed_books_for_customer, 
     mark_book_as_unavailable, get_unavailable_books
 )
-from redis import Redis
+from redis import StrictRedis
 import json
 import asyncio
+import threading
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+REDIS_CHANNEL = "book_updates"
+
+redis_client = StrictRedis(
+    host=redis_settings.redis_host, port=redis_settings.redis_port, db=redis_settings.redis_db, decode_responses=True
+)
+
+
+# Background task to listen for admin updates
+def listen_to_channel():
+    pubsub = redis_client.pubsub()
+    pubsub.subscribe(REDIS_CHANNEL)
+
+    for message in pubsub.listen():
+        # Ensure we only process actual messages
+        if message['type'] == 'message':
+            data = message['data']
+            print(f"Received: {data}")
+
+            try:
+                # Parse the data as JSON
+                data = json.loads(data)
+                
+                # Check the action and process accordingly
+                if data['action'] == 'borrow':
+                    book_id = data.get('book_id')
+                    if book_id:
+                        # Mark the book as unavailable
+                        with SessionLocal() as db:
+                            mark_book_as_unavailable(db=db, book_id=book_id)
+                    else:
+                        print("Missing book_id in message")
+                else:
+                    print("Invalid action")
+            except json.JSONDecodeError:
+                print("Failed to decode JSON message")
+            except Exception as e:
+                print(f"Error processing message: {str(e)}")
+
+async def start_redis_listener():
+    thread = threading.Thread(target=listen_to_channel)
+    thread.start()
+
+
+async def lifespan():
+    print(f"Subscribing to {REDIS_CHANNEL} on startup...")
+    await start_redis_listener()
+
+app = FastAPI(on_startup=[lifespan])
 
 # Add CORS middleware
 app.add_middleware(
@@ -22,31 +72,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Redis setup for Pub/Sub
-redis_client = Redis(host=redis_settings.redis_host, port=redis_settings.redis_port, db=redis_settings.redis_db)
-
-
-def start_admin_listener():
-    pubsub = redis_client.pubsub()
-    pubsub.subscribe('book_updates')
-
-    async def listen():
-        for message in pubsub.listen():
-            data = message['data']
-            print(f"Received: {data}")
-            data = json.loads(data)
-            if data['action'] == 'borrow':
-                # Mark book as unavailable
-                mark_book_as_unavailable(db=SessionLocal(), book_id=data['book_id'])                
-            else:
-                print("Invalid action")
-            
-
-    loop = asyncio.get_event_loop()
-    loop.create_task(listen())
-
-start_admin_listener()
 
 async def get_db():
     db = SessionLocal()
@@ -66,19 +91,19 @@ async def home():
     return response
 
 @app.post("/api/books")
-def add_book(book: BookCreate):
-    response = create_book(book)
+def add_book(book: BookCreate, db: Session = Depends(get_db)):
+    response = create_book(db=db, book=book)
     # Publish to Redis
     message = {"action": "add", "book": response}
-    redis_client.publish('book_updates', json.dumps(message))
-    return SuccessResponse(message="Book added successfully", data=response, status_code=200)
+    redis_client.publish(REDIS_CHANNEL, str(message))
+    return SuccessResponse(message="Book added successfully", data={"book": response}, status_code=200)
 
 @app.delete("/api/books/{book_id}")
-def remove_book(book_id: int):
-    response = delete_book(book_id)
+def remove_book(book_id: int, db: Session = Depends(get_db)):
+    response = delete_book(db=db, book_id=book_id)
     # Publish to Redis
     message = {"action": "remove", "book": {"id": book_id}}
-    redis_client.publish('book_updates', json.dumps(message))
+    redis_client.publish(REDIS_CHANNEL, json.dumps(message))
     return response
 
 @app.get("/api/users")

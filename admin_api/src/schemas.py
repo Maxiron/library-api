@@ -7,6 +7,7 @@ class BookCreate(BaseModel):
     category: str
 
 
+
 class SuccessResponse(BaseModel):
     message: str
     data: dict

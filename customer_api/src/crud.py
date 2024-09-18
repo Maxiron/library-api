@@ -55,6 +55,7 @@ def get_users(db: Session):
 
 
 def create_user(db: Session, user: UserCreate):
+    user = user.dict()
     try:
         db_user = User(email=user.email, first_name=user.first_name, last_name=user.last_name)
         db.add(db_user)
@@ -129,6 +130,7 @@ def get_book(db: Session, book_id: str):
 
 
 def add_new_book(db: Session, book: Book):
+    book = book.dict()
     try:
         db_book = Book(
             id=str(uuid.uuid4()),

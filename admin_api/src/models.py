@@ -6,7 +6,7 @@ import uuid
 class Book(Base):
     __tablename__ = "books"
 
-    id = Column(String(100), primary_key=True, index=True, default=str(uuid.uuid4()))
+    id = Column(String(100), primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     title = Column(String(200), nullable=False)
     author = Column(String(200), nullable=False)
     publisher = Column(String(200), nullable=False)

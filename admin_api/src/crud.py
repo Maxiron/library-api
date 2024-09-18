@@ -1,11 +1,11 @@
 import requests
 import uuid
-from datetime import datetime
+from  datetime import datetime
 
 from sqlalchemy.orm import Session
 
 from src.schemas import BookCreate, SuccessResponse
-from src.models import Book
+from src.models import Book as BookModel
 
 CUSTOMER_API_BASE_URL = " http://127.0.0.1:8000/api/"
 
@@ -25,27 +25,43 @@ def get_borrowed_books_for_customer(customer_id):
 
 
 def create_book(db: Session, book: BookCreate):
+    # book_data = book.dict() 
+    # print(book_data)
     try:
-        db_book = Book(
-            id=str(uuid.uuid4()),
+        db_book = BookModel(
             title=book.title,
             author=book.author,
             publisher=book.publisher,
-            category=book.category,
-            is_available=True
+            category=book.category
         )
         db.add(db_book)
         db.commit()
         db.refresh(db_book)
-        return db_book
+        # get the book details
+        book_details = {
+            "id": db_book.id,
+            "title": db_book.title,
+            "author": db_book.author,
+            "publisher": db_book.publisher,
+            "category": db_book.category,
+            "is_available": db_book.is_available
+        }
+        print(book_details) 
+        return book_details
+        
     except Exception as e:
-        return {}
+        print(f"An error occurred: {str(e)}")
+        return SuccessResponse(
+            message="An error occurred",
+            data={},
+            status_code=500
+        )
     finally:
         db.close()
 
 def delete_book(db: Session, book_id: str):
     try:
-        db_book = db.query(Book).filter(Book.id == book_id).first()
+        db_book = db.query(BookModel).filter(BookModel.id == book_id).first()
         if not db_book:
             return False
         db.delete(db_book)
@@ -58,7 +74,7 @@ def delete_book(db: Session, book_id: str):
 
 def mark_book_as_unavailable(db: Session, book_id: str):
     try:
-        db.query(Book).filter(Book.id == book_id).update({"is_available": False}, synchronize_session=False)
+        db.query(BookModel).filter(BookModel.id == book_id).update({"is_available": False}, synchronize_session=False)
         db.commit()
         return True
     except Exception as e:
@@ -68,7 +84,7 @@ def mark_book_as_unavailable(db: Session, book_id: str):
 
 def get_unavailable_books(db: Session):
     try:
-        query = db.query(Book).filter(Book.is_available == False).all()
+        query = db.query(BookModel).filter(BookModel.is_available == False).all()
     except Exception as e:
         return SuccessResponse(
             message= "An error occurred",
