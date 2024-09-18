@@ -22,7 +22,7 @@ class BookBase(BaseModel):
     category: str
 
 class BookCreate(BookBase):
-    pass
+    id: str
 
 class Book(BookBase):
     id: str    
@@ -40,6 +40,10 @@ class BorrowedBookBase(BaseModel):
 class BorrowedBook(BorrowedBookBase):
     class Config:
         from_attributes = True
+
+class BorrowedBookCreate(BaseModel):
+    user_email: str
+    days: int
 
 class ResponseSchema(BaseModel):
     message: str

@@ -5,7 +5,7 @@ import threading
 from contextlib import asynccontextmanager
 
 # FastAPI imports
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 
 # Third-party imports
@@ -36,41 +36,47 @@ def listen_to_channel():
             print(f"Received message: {data} on channel: {REDIS_CHANNEL}")
             
             try:
-                # convert the message data to JSON
-                data = json.loads(data)
-                print(type(data))
+                if isinstance(data, str):
+                    str_data = data.replace("'", '"')  # Convert single quotes to double quotes                    
+                    str_data = str_data.replace("True", "true")  # Convert True to true
+
+                # Load the converted string into a Python dictionary
+                data = json.loads(str_data)
 
                 # Ensure the action exists and handle based on 'add' or 'remove'
-                action = data.get('action')
+                action = data['action']
                 if action == 'add':
-                    book_data = data.get('book')
+                    book_data = data['book']
                     if book_data:
                         # Create a new book from the provided book data
                         with SessionLocal() as db:
                             add_new_book(db=db, book=BookCreate(**book_data))
                 elif action == 'remove':
-                    book_id = data.get('book', {}).get('id')
+                    book_id = data['book']['id']
                     if book_id:
                         # Delete the book with the given ID
                         with SessionLocal() as db:
                             delete_book(db=db, book_id=book_id)
                 else:
                     print("Invalid action")
-            except json.JSONDecodeError:
-                print("Failed to decode JSON message")
+            except json.JSONDecodeError as e:                
+                print(f"Failed to decode JSON message; {str(e)}")
             except Exception as e:
                 print(f"Error processing message: {str(e)}")
             
 
-async def start_redis_listener():
-    thread = threading.Thread(target=listen_to_channel)
-    thread.start()
+async def start_redis_listener(background_tasks: BackgroundTasks):
+    # Start the background task to listen for messages
+    # background_tasks.add_task(listen_to_channel)
+    asyncio.get_event_loop().run_in_executor(None, listen_to_channel)
+
 
 
 
 async def lifespan():
     print(f"Subscribing to {REDIS_CHANNEL} on startup...")
-    await start_redis_listener()
+    await start_redis_listener(BackgroundTasks())
+
 
 app = FastAPI(on_startup=[lifespan])
 

@@ -15,11 +15,12 @@ def get_customers():
     return response.json()
 
 def get_customer(customer_id):
-    response = requests.get(f"{CUSTOMER_API_BASE_URL}/users/{customer_id}")
+    response = requests.get(f"{CUSTOMER_API_BASE_URL}users/{customer_id}")
+    print(response.json())
     return response.json()
 
 def get_borrowed_books_for_customer(customer_id):
-    response = requests.get(f"{CUSTOMER_API_BASE_URL}/borrowed-books/{customer_id}")
+    response = requests.get(f"{CUSTOMER_API_BASE_URL}books/borrowings/{customer_id}")
     return response.json()
 
 
@@ -46,7 +47,6 @@ def create_book(db: Session, book: BookCreate):
             "category": db_book.category,
             "is_available": db_book.is_available
         }
-        print(book_details) 
         return book_details
         
     except Exception as e:
@@ -85,6 +85,28 @@ def mark_book_as_unavailable(db: Session, book_id: str):
 def get_unavailable_books(db: Session):
     try:
         query = db.query(BookModel).filter(BookModel.is_available == False).all()
+        print(query)
+        if not query:
+            return SuccessResponse(
+                message="Unavailable Books doesn't exist",
+                data={},
+                status_code=404
+            )
+
+        return SuccessResponse(
+            message="Unavailable books retrieved successfully" if query else "No unavailable books found",
+            data={
+                "books": [
+                    {
+                        "book_id": book.id,
+                        "title": book.title,
+                        "author": book.author,
+                        "category": book.category
+                    }
+                ] for book in query
+            },
+            status_code=200
+        )
     except Exception as e:
         return SuccessResponse(
             message= "An error occurred",
@@ -93,10 +115,4 @@ def get_unavailable_books(db: Session):
         )
     finally:
         db.close()
-    return SuccessResponse(
-        message="Unavailable books retrieved successfully" if query else "No unavailable books found",
-        data={
-            "books": query if query else [],
-        },
-        status_code=200 if query else 404
-    )
+    

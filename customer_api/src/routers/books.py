@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from typing import List
 from src.crud import get_books, get_book, borrow_book, add_new_book, delete_book, get_borrowed_books_for_customer
 from src.database import SessionLocal
-from src.schemas import BorrowedBook, Book, BookCreate
+from src.schemas import BorrowedBook, Book, BookCreate, BorrowedBookCreate, ResponseSchema
 
 
 
@@ -43,34 +43,18 @@ async def filter_books(publisher: Optional[str] = Query(None), category: Optiona
 
 # Borrow single book endpoint
 @router.post("/borrow/{book_id}")
-async def borrow_single_book(book_id: str, days: int, user_email: str, db: Session = Depends(get_db)):
-    borrowed_book = borrow_book(db=db, book_id=book_id, user_email=user_email, days=days)
+async def borrow_single_book(book_id: str, data: BorrowedBookCreate, db: Session = Depends(get_db)):
+    borrowed_book = borrow_book(db=db, book_id=book_id, user_email=data.user_email, days=data.days)
     if not borrowed_book:
-        raise HTTPException(status_code=400, detail="Cannot borrow book")
+        return ResponseSchema(
+            message="Book is currently unavailable",
+            data={},
+            status_code=404
+        )
     return borrowed_book
 
 
 # Admin Service Endpoints
-
-# Add book endpoint
-# @router.post("/")
-# async def add_book(book: BookCreate, db: Session = Depends(get_db)):
-#     db_book = add_new_book(db=db, book=book)
-#     return db_book
-
-# Delete book endpoint
-# @router.delete("/{book_id}")
-# async def delete_single_book(book_id: str, db: Session = Depends(get_db)):
-#     db_book = get_book(db, book_id=book_id)
-#     if db_book is None:
-#         raise HTTPException(status_code=404, detail="Book not found")
-#     return delete_book(db=db, book_id=book_id)
-
-# Get unavailable books endpoint
-# @router.get("/unavailable")
-# async def unavailable_books(db: Session = Depends(get_db)):
-#     books = get_books(db, is_available=False)
-#     return books
 
 # Get borrowed books for customer endpoint
 @router.get("/borrowings/{customer_id}")

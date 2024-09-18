@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from src.config import redis_settings
@@ -12,8 +12,6 @@ from src.crud import (
 from redis import StrictRedis
 import json
 import asyncio
-import threading
-from contextlib import asynccontextmanager
 
 REDIS_CHANNEL = "book_updates"
 
@@ -34,12 +32,18 @@ def listen_to_channel():
             print(f"Received: {data}")
 
             try:
-                # Parse the data as JSON
-                data = json.loads(data)
-                
+                if isinstance(data, str):
+                    str_data = data.replace("'", '"')  # Convert single quotes to double quotes                    
+                    str_data = str_data.replace("True", "true")  # Convert True to true
+
+                # Load the converted string into a Python dictionary
+                data = json.loads(str_data)
+
                 # Check the action and process accordingly
-                if data['action'] == 'borrow':
-                    book_id = data.get('book_id')
+                action = data['action']
+                print("Action: ", action)
+                if action == 'borrow':                      
+                    book_id = data['book_id']
                     if book_id:
                         # Mark the book as unavailable
                         with SessionLocal() as db:
@@ -53,14 +57,17 @@ def listen_to_channel():
             except Exception as e:
                 print(f"Error processing message: {str(e)}")
 
-async def start_redis_listener():
-    thread = threading.Thread(target=listen_to_channel)
-    thread.start()
+
+async def start_redis_listener(background_tasks: BackgroundTasks):
+    # Start the background task to listen for messages
+    # background_tasks.add_task(listen_to_channel)
+    asyncio.get_event_loop().run_in_executor(None, listen_to_channel)
+    
 
 
 async def lifespan():
     print(f"Subscribing to {REDIS_CHANNEL} on startup...")
-    await start_redis_listener()
+    await start_redis_listener(BackgroundTasks())
 
 app = FastAPI(on_startup=[lifespan])
 
@@ -99,12 +106,15 @@ def add_book(book: BookCreate, db: Session = Depends(get_db)):
     return SuccessResponse(message="Book added successfully", data={"book": response}, status_code=200)
 
 @app.delete("/api/books/{book_id}")
-def remove_book(book_id: int, db: Session = Depends(get_db)):
+def remove_book(book_id: str, db: Session = Depends(get_db)):
     response = delete_book(db=db, book_id=book_id)
     # Publish to Redis
     message = {"action": "remove", "book": {"id": book_id}}
-    redis_client.publish(REDIS_CHANNEL, json.dumps(message))
-    return response
+    redis_client.publish(REDIS_CHANNEL, str(message))
+    if response:
+        return SuccessResponse(message="Book deleted successfully", data={}, status_code=200)
+    else:
+        return SuccessResponse(message="Book not found", data={}, status_code=404)
 
 @app.get("/api/users")
 def list_users():
