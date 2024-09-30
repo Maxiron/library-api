@@ -13,16 +13,23 @@ RUN apt-get update && apt-get install -y default-libmysqlclient-dev \
 WORKDIR /app
 
 # Copy the requirements file into the container at /app
-COPY requirements.txt .
+COPY admin_api/requirements.txt .
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy entrypoint script and make it executable
+COPY admin_api/entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
 # Copy the current directory contents into the container at /app
-COPY . /app
+COPY admin_api /app
+
+RUN chmod +x entrypoint.sh
 
 # Make port 8001 available to the world outside this container
 EXPOSE 8001
 
 # Run main.py when the container launches
 # CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+ENTRYPOINT ["./entrypoint.sh"]
